@@ -12,9 +12,9 @@ Input:
 Output:
 A map of log10 Bayesian Factor values (logBF) rather thanBF factors, since the latter can range between 0 and very large values with non-linear interpretation. The logBF map can be opened with neuroimaging visualization softwares (such as ITK-SNAP for a free option) on top of the brain template used for lesion normalization (e.g. MNI152). Log(BF) values are usually interpreted as follows:
 
-logBF = 0                no evidence for either the null or the alternative hypothesis
-logBF = [0, 0.5[         weak evidence for alternative hypothesis
-logBF = [0.5, 1[         Substantial evidence for alternative hypothesis
-logBF = [1, 1.5[         Strong evidence for alternative hypothesis
-logBF = [1.5, 2[         Very strong evidence for alternative hypothesis
-logBF = [2, inf]         Decisive evidence for alternative hypothesis
+- logBF = 0                no evidence for either the null or the alternative hypothesis
+- logBF = [0, 0.5[         weak evidence for alternative hypothesis
+- logBF = [0.5, 1[         Substantial evidence for alternative hypothesis
+- logBF = [1, 1.5[         Strong evidence for alternative hypothesis
+- logBF = [1.5, 2[         Very strong evidence for alternative hypothesis
+- logBF = [2, inf]         Decisive evidence for alternative hypothesis
