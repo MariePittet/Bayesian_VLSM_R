@@ -1,6 +1,5 @@
 # Bayesian_VLSM_R
-Contributor: Marie Pittet, marie.pittet93@gmail.com
-Jan 2025
+Contributor: Marie Pittet, marie.pittet93@gmail.com, Jan 2025
 
 Full R-based Bayesian Voxel-Based Lesion-Symptom Mapping. This is particularly suitable for the exploration of the effects of lesions on behavioral outcomes (symptoms) in small sample sizes. 
 A first analysis using the frequentist approach (t-tests) is performed for comparison. The second approach is the bVLSM using bayesian t-tests (with the "BayesFactor" package), with Cauchy priors. BVLSM -also called Bayesian Lesion-Deficit Inference (BLDI), does not really benefit from lesion-volume correction (Sperber et al., 2023), hence it is not applied here.
