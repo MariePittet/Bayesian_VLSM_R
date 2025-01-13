@@ -32,28 +32,28 @@ library(gt)
 
 # Loading behavioral and lesion data --------------------------------------
 
-# loading behavioral scores of ABI patients (MASC total scores)
+# Loading behavioral scores of ABI patients (MASC total scores)
 df <- read_excel("SC_results.xlsx")
 symptom_scores <- df$MASCtot[1:20] # removing control subjects
 
-# Load the lesion mask (e.g., from a .nii file)
+# Load the lesion masks of all participants
 lesion_data <- readNifti("all_lesions_4d.nii.gz")
 
 # VLSM frequentist approach (FDR corrected t-tests) -------------------------------
 
-# Initialize arrays for t-values and p-values
+# Initializing arrays for t-values and p-values
 dim_3d <- dim(lesion_data)[1:3]
 t_values <- array(NA, dim = dim_3d)
 p_values <- array(NA, dim = dim_3d)
 
-# Voxel-wise t-tests
+# Voxel-wise t-tests (in each voxel, comparing MASC scores for lesioned vs unlesioned patients in the precise voxel)
 for (x in 1:dim_3d[1]) {
   for (y in 1:dim_3d[2]) {
     for (z in 1:dim_3d[3]) {
       lesion_voxel <- lesion_data[x, y, z, ]  # Voxel values for all patients
       
-      # Check if voxel has sufficient data
-      if (sum(lesion_voxel) > 2) {  # At least 2 patients with lesions
+      # Checking if voxel has sufficient data
+      if (sum(lesion_voxel) > 2) {  # At least 2 patients with lesions otherwise it's not relevant
         test <- lm(symptom_scores ~ lesion_voxel)
         t_values[x, y, z] <- summary(test)$coefficients[2, "t value"]
         p_values[x, y, z] <- summary(test)$coefficients[2, "Pr(>|t|)"]
@@ -62,40 +62,40 @@ for (x in 1:dim_3d[1]) {
   }
 }
 
-# Flatten p-values for FDR correction
+# Flattening p-values for FDR correction
 p_values_flat <- as.vector(p_values)
 p_values_flat <- p_values_flat[!is.na(p_values_flat)]  # Remove NAs
 
-# Apply FDR correction
+# Applying FDR correction
 adjusted_p <- p.adjust(p_values_flat, method = "fdr")
 
-# Map corrected p-values back into 3D space
+# Mapping corrected p-values back into 3D space
 p_values_corrected <- array(NA, dim = dim_3d)
 p_values_corrected[!is.na(p_values)] <- adjusted_p
 
-# Load the header of the original NIfTI file
+# Loading the header of the original NIfTI file
 template <- readNifti("all_lesions_4d.nii.gz")
 
-# Save t-map
+# Saving t-map
 writeNifti(t_values, file = "t_map.nii.gz", template = template)
 
-# Save corrected p-value map
+# Saving corrected p-value map
 writeNifti(p_values_corrected, file = "p_map_corrected.nii.gz", template = template)
 
-#Save uncorrected p-values
+#Saving uncorrected p-values
 writeNifti(p_values, file = "p_map.nii.gz", template = template)
 
 
 # VLSM Bayesian approach --------------------------------------------------
 
-# Loading behavioral scores of ABI patients (MASC total scores)
+# Loading behavioral scores of ABI patients (MASC total scores) in case you didn't perform the frequentist analysis, you lazy thing
 df <- read_excel("SC_results.xlsx")
-symptom_scores <- df$MASCtot[1:20]  # Removing control subjects
+symptom_scores <- df$MASCtot[1:20]  # Removing control subjects (this is specific to my dataset which contains data from control subjects
 
-# Load the lesions of all patients
+# Loading the lesions of all patients (if you didn't already)
 lesion_data <- readNifti("all_lesions_4d.nii.gz")
 
-# Initialize arrays for Bayes Factors
+# Initializing arrays for log Bayes Factors
 dim_3d <- dim(lesion_data)[1:3]
 logBF <- array(NA, dim = dim_3d)
 
@@ -143,7 +143,7 @@ voxel_data$logBF <- as.vector(logBF_array)
 mni_voxel_data <- expand.grid(x = 1:dims[1], y = 1:dims[2], z = 1:dims[3])
 mni_voxel_data$intensity <- as.vector(mni_array)
 
-# Defining the slices of interest
+# Defining the slices of interest (CHANGE HERE FOR YOUR OWN ANALYSIS)
 selected_slices <- c(40,50,60,102,112)
 
 # Filtering on these slices
@@ -187,7 +187,7 @@ p_manual
 
 # Visualization in 3 planes with manual slice extraction ------------------
 
-#Selecting the interesting slices (I visualized the in ITK-SNAP)
+# Selecting interesting slices (I visualized them in ITK-SNAP; CHANGE HERE FOR YOUR OWN ANALYSIS)
 x_slices<- c(60,102,109)
 y_slices<- c(176,140,133)
 z_slices <- c(50,60,100)
@@ -195,7 +195,7 @@ z_slices <- c(50,60,100)
 # Preparing slice data for z-plane
 voxel_data_z <- voxel_data %>%
   filter(z %in% z_slices) %>%
-  mutate(logBF = ifelse(logBF < 0.5, NA, logBF))%>%   # thresholding so that values below 0.5 do not appear
+  mutate(logBF = ifelse(logBF < 0.5, NA, logBF))%>%   # thresholding so that values below 0.5 do not appear since logBF < 0.5 do not provide evidence for H1
   drop_na()
 
 mni_voxel_data_z <- mni_voxel_data %>%
@@ -204,7 +204,7 @@ mni_voxel_data_z <- mni_voxel_data %>%
 voxel_data_z$z <- factor(voxel_data_z$z, levels = z_slices)
 mni_voxel_data_z$z <- factor(mni_voxel_data_z$z, levels = z_slices)
 
-# Converting z to a factor (so that facet_wrap displays them in the right order)
+# Converting z to a factor (so that facet_wrap displays them in the right order, hopefully)
 voxel_data_filtered$z <- factor(voxel_data_filtered$z, levels = selected_slices)
 mni_voxel_data_filtered$z <- factor(mni_voxel_data_filtered$z, levels = selected_slices)
 
@@ -234,10 +234,10 @@ mni_voxel_data_y$y <- factor(mni_voxel_data_y$y, levels = y_slices)
 
 # Defining colors for the logBF scale. Here you can change the thing if you don't like my colors :(
 color_scale <- scale_fill_gradientn(
-  colours = magma(256)[50:256],  # Skip the first 25 tones of the magma palette
-  limits = c(0.5, 3.15),            # Set limits for the color scale
-  name = expression(logBF),      # Set the legend name
-  oob = scales::squish          # Handle out-of-bound values
+  colours = magma(256)[50:256],  # Skipping the first 25 tones of the magma palette because they are ugly as hell
+  limits = c(0.5, 3.15),            # Setting limits for the color scale (CHANGE HERE IF YOU HAVE CRAZY HIGH logBFs, YOU LUCKY PERSON)
+  name = expression(logBF),      # Setting the legend name
+  oob = scales::squish          # Handling out-of-bound values
 )
 
 # Plotting for z-plane
@@ -297,29 +297,29 @@ combined_plot
 
 # Comparison with atlases - Talairach -------------------------------------------------
 
-# Load logBF map
+# Loading logBF map
 logBF_map <-  readNIfTI("logBF_map.nii.gz", reorient = FALSE)
 
-# Load the Talairach label file
+# Loading the Talairach label file
 label_data <- readNIfTI("Talairach-labels-1mm.nii.gz", reorient = FALSE)
 
-# Get the dimensions of the label file
+# Dimensions of the label file
 cat("Label file dimensions:", dim(label_data), "\n")
 cat("Label range (region indices):", range(label_data, na.rm = TRUE), "\n")
 
-# Assuming logBF_map is already computed and has the same dimensions as the Talairach label file
+# Data frame with logBF data and atlas region data
 logBF_data <- data.frame(
   x = rep(1:dim(label_data)[1], each = dim(label_data)[2] * dim(label_data)[3]),
   y = rep(rep(1:dim(label_data)[2], each = dim(label_data)[3]), times = dim(label_data)[1]),
   z = rep(1:dim(label_data)[3], times = dim(label_data)[1] * dim(label_data)[2]),
-  logBF = as.vector(logBF_map),  # Your logBF values
+  logBF = as.vector(logBF_map),  
   region = as.vector(label_data)  # Region indices from the Talairach atlas
 )
 
-# Check the first few rows to verify the data
+# Checking the first few rows to verify that I didn't mess up
 head(logBF_data)
 
-# Summarize logBF by region
+# Summarizing logBF by region
 region_summary <- logBF_data %>%
   group_by(region) %>%
   summarise(
@@ -328,9 +328,6 @@ region_summary <- logBF_data %>%
     .groups = "drop"
   ) %>%
   arrange(desc(max_logBF))
-
-# View the summary table
-head(region_summary)
 
 # Threshold LogBF values
 threshold_value <- 0.5
@@ -355,8 +352,7 @@ analysis_results_with_labels <- merge(significant_regions, labels_data, by.x = "
 # Analysis results with labels
 analysis_results_with_labels
 
-
-# Reorder the data by max_logBF, then mean_logBF, and finally by n_voxels
+# Reordering the data by max_logBF, and by n_voxels
 sorted_results <- analysis_results_with_labels %>%
   arrange(desc(max_logBF), desc(num_voxels))
 
@@ -365,15 +361,15 @@ sorted_results
 # Comparison with atlases - AAL  -------------------------------------------------
 
 # Loading the AAL atlas and labels
-atlas_data <- readNIfTI("AAL_resampled_1mm.nii.gz", reorient = TRUE) # had to resample the AAL atlas to fit the MNI slices/dimensions
+atlas_data <- readNIfTI("AAL_resampled_1mm.nii.gz", reorient = TRUE) # had to resample the AAL atlas in FSL to fit the MNI slices/dimensions
 xml_file <- read_xml("AAL.xml") # xml file with labels
 
-# Extract the labels and indices
+# Extracting the labels and indices
 labels <- xml_find_all(xml_file, ".//label")
 indices <- xml_find_all(labels, ".//index")
 names <- xml_find_all(labels, ".//name")
 
-# Convert the extracted data into a dataframe
+# Converting the extracted data into a dataframe
 label_data <- tibble(
   index = as.numeric(xml_text(indices)),
   label = xml_text(names))
@@ -383,7 +379,7 @@ cat("Atlas dimensions:", dim(atlas_data), "\n")
 cat("Label data dimensions:", dim(label_data), "\n")
 cat("Atlas region range:", range(atlas_data, na.rm = TRUE), "\n")
 
-# creating a data frame with all the data
+# Creating a data frame with all the data
 logBF_data <- data.frame(
   x = rep(1:dim(atlas_data)[1], each = dim(atlas_data)[2] * dim(atlas_data)[3]),
   y = rep(rep(1:dim(atlas_data)[2], each = dim(atlas_data)[3]), times = dim(atlas_data)[1]),
@@ -406,9 +402,6 @@ region_summary <- logBF_data %>%
   ) %>%
   arrange(desc(max_logBF))
 
-# Viewing the summary table
-print(region_summary)
-
 # Thresholding LogBF values to focus on significant regions
 threshold_value <- 0.5
 significant_regions <- region_summary %>%
@@ -426,7 +419,7 @@ filtered_results <- sorted_results %>%
 
 filtered_results
 
-# Create a publication-ready table
+# Creating a cute publication-ready table
   gt(data = filtered_results) %>%
   tab_header(
     title = "Regions showing the highest log(BF) values ",
@@ -436,6 +429,10 @@ filtered_results
     max_logBF = "Max logBF",
     num_voxels = "Voxel Count",
     label = "Region Name"
+  ) %>%
+ tab_options(
+      table.font.size = px(12),    # Reduce font size because otherwise the thing gets huge. You can adjust
+      data_row.padding = px(2)    # Adjust row padding to make it more or less compact
   ) %>%
   fmt_number(
     columns = c(max_logBF),
