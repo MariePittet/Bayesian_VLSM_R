@@ -25,6 +25,10 @@ library(tidyr)
 library(ggplot2)
 #install.packages("viridis")
 library(viridis)
+#install.packages("xml2")
+library(xml2)
+#install.packages("gt")
+library(gt)
 
 # Loading behavioral and lesion data --------------------------------------
 
@@ -421,3 +425,33 @@ filtered_results <- sorted_results %>%
   filter(!is.na(label))
 
 filtered_results
+
+# Create a publication-ready table
+  gt(data = filtered_results) %>%
+  tab_header(
+    title = "Regions showing the highest log(BF) values ",
+  ) %>%
+  cols_label(
+    region = "Region ID",
+    max_logBF = "Max logBF",
+    num_voxels = "Voxel Count",
+    label = "Region Name"
+  ) %>%
+  fmt_number(
+    columns = c(max_logBF),
+    decimals = 2
+  ) %>%
+  fmt_number(
+    columns = num_voxels,
+    decimals = 0
+  ) %>%
+  cols_align(
+    align = "left",
+    columns = everything()
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels(everything())
+  ) %>%
+  opt_table_outline() %>%
+  opt_align_table_header(align = "center")
