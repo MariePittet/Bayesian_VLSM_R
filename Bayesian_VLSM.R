@@ -143,6 +143,7 @@ selected_slices <- c(40,50,60,102,112)
 # Filtering on these slices
 voxel_data_filtered <- voxel_data %>%
   filter(z %in% selected_slices) %>%
+  mutate(logBF = ifelse(logBF < 0.5, NA, logBF))%>%   # thresholding so that values below 0.5 (no evidence for H0 or H1) do not appear
   drop_na()
 
 mni_voxel_data_filtered <- mni_voxel_data %>%
@@ -188,6 +189,7 @@ z_slices <- c(50,60,100)
 # Preparing slice data for z-plane
 voxel_data_z <- voxel_data %>%
   filter(z %in% z_slices) %>%
+  mutate(logBF = ifelse(logBF < 0.5, NA, logBF))%>%   # thresholding so that values below 0.5 do not appear
   drop_na()
 
 mni_voxel_data_z <- mni_voxel_data %>%
@@ -203,6 +205,7 @@ mni_voxel_data_filtered$z <- factor(mni_voxel_data_filtered$z, levels = selected
 # Preparing slice data for x-plane
 voxel_data_x <- voxel_data %>%
   filter(x %in% x_slices) %>%
+  mutate(logBF = ifelse(logBF < 0.5, NA, logBF))%>%   # thresholding so that values below 0.5 do not appear
   drop_na()
 
 mni_voxel_data_x <- mni_voxel_data %>%
@@ -214,6 +217,7 @@ mni_voxel_data_x$x <- factor(mni_voxel_data_x$x, levels = x_slices)
 # Preparing slice data for y-plane
 voxel_data_y <- voxel_data %>%
   filter(y %in% y_slices) %>%
+  mutate(logBF = ifelse(logBF < 0.5, NA, logBF))%>%   # thresholding so that values below 0.5 do not appear
   drop_na()
 
 mni_voxel_data_y <- mni_voxel_data %>%
