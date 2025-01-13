@@ -10,8 +10,13 @@ Input:
 - For visualization, selected slices are given as examples but can be modified by modifying the numbers in the selected_slices variable for the axial plane, or in the x_slices, y_slices, and y_slices for the visualization in 3 planes. 
 
 Output:
-A map of log10 Bayesian Factor values (logBF) rather thanBF factors, since the latter can range between 0 and very large values with non-linear interpretation. The logBF map can be opened with neuroimaging visualization softwares (such as ITK-SNAP for a free option) on top of the brain template used for lesion normalization (e.g. MNI152). Log(BF) values are usually interpreted as follows:
+- A map of log10 Bayesian Factor values (logBF) instead of BF factors. This is because the latter can range between 0 and very large values with non-linear interpretation and is not easy to handle within visualization softwares. The logBF map can be opened with neuroimaging visualization softwares (such as ITK-SNAP for a free option) on top of the brain template used for lesion normalization (e.g. MNI152).
+- a publication-ready map of the logBF map on top of the MNI template in one plane (axial), or three planes (sagittal, axial, coronal).
+- a table with the attribution of significant voxels to Talairach atlas regions.
 
+ 
+ 
+ Log(BF) values are usually interpreted as follows:
 - logBF = 0                no evidence for either the null or the alternative hypothesis
 - logBF = [0, 0.5[         weak evidence for alternative hypothesis
 - logBF = [0.5, 1[         Substantial evidence for alternative hypothesis
