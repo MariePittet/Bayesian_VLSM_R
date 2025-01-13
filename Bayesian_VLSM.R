@@ -291,37 +291,44 @@ combined_plot <- (plot_x | plot_y | plot_z) +
 
 combined_plot 
 
-# Comparison with atlases -------------------------------------------------
+# Comparison with atlases - Talairach -------------------------------------------------
 
 # Load logBF map
-logBF_map <-  readNIfTI("logBF_map.nii.gz", reorient = FALSE) # already done but if you want to run this part separately, load here
+logBF_map <-  readNIfTI("logBF_map.nii.gz", reorient = FALSE)
 
-# Loading the Talairach atlas
-label_data <- readNIfTI("Talairach-labels-1mm.nii.gz", reorient = FALSE) # took that one because it has cortical and subcortical regions all merged in one
+# Load the Talairach label file
+label_data <- readNIfTI("Talairach-labels-1mm.nii.gz", reorient = FALSE)
 
-# Getting the dimensions of the label file
+# Get the dimensions of the label file
 cat("Label file dimensions:", dim(label_data), "\n")
 cat("Label range (region indices):", range(label_data, na.rm = TRUE), "\n")
 
-# Extracting data from logBF map
+# Assuming logBF_map is already computed and has the same dimensions as the Talairach label file
 logBF_data <- data.frame(
   x = rep(1:dim(label_data)[1], each = dim(label_data)[2] * dim(label_data)[3]),
   y = rep(rep(1:dim(label_data)[2], each = dim(label_data)[3]), times = dim(label_data)[1]),
   z = rep(1:dim(label_data)[3], times = dim(label_data)[1] * dim(label_data)[2]),
-  logBF = as.vector(logBF_map),  
-  region = as.vector(label_data)) # Talairach regions
+  logBF = as.vector(logBF_map),  # Your logBF values
+  region = as.vector(label_data)  # Region indices from the Talairach atlas
+)
 
-# Summarizing logBF by Talairach region
+# Check the first few rows to verify the data
+head(logBF_data)
+
+# Summarize logBF by region
 region_summary <- logBF_data %>%
   group_by(region) %>%
   summarise(
-    mean_logBF = mean(logBF, na.rm = TRUE),
     max_logBF = max(logBF, na.rm = TRUE),
     num_voxels = n(),
-    .groups = "drop") %>%
+    .groups = "drop"
+  ) %>%
   arrange(desc(max_logBF))
 
-# Thresholding LogBF values to only get regions with a higher probability of H1 being true compared to H0
+# View the summary table
+head(region_summary)
+
+# Threshold LogBF values
 threshold_value <- 0.5
 significant_regions <- region_summary %>%
   filter(max_logBF >= threshold_value)
@@ -332,7 +339,7 @@ labels_data <- read.table("Talairach-labels.txt", header = FALSE, sep = "\t", st
 # Assigning proper column names
 colnames(labels_data) <- c("Region_ID", "Label")
 
-# Listing of significant region indices
+# List of significant region indices
 significant_regions1 <- significant_regions$region 
 
 # Merging significant regions with labels
@@ -344,10 +351,73 @@ analysis_results_with_labels <- merge(significant_regions, labels_data, by.x = "
 # Analysis results with labels
 analysis_results_with_labels
 
-# Reordering the data by max_logBF, and by n_voxels. That is arbitrary; you can modify it as you please to show your results
+
+# Reorder the data by max_logBF, then mean_logBF, and finally by n_voxels
 sorted_results <- analysis_results_with_labels %>%
   arrange(desc(max_logBF), desc(num_voxels))
 
 sorted_results
 
+# Comparison with atlases - AAL  -------------------------------------------------
 
+# Loading the AAL atlas and labels
+atlas_data <- readNIfTI("AAL_resampled_1mm.nii.gz", reorient = TRUE) # had to resample the AAL atlas to fit the MNI slices/dimensions
+xml_file <- read_xml("AAL.xml") # xml file with labels
+
+# Extract the labels and indices
+labels <- xml_find_all(xml_file, ".//label")
+indices <- xml_find_all(labels, ".//index")
+names <- xml_find_all(labels, ".//name")
+
+# Convert the extracted data into a dataframe
+label_data <- tibble(
+  index = as.numeric(xml_text(indices)),
+  label = xml_text(names))
+
+# Viewing the dimensions and range of the atlas
+cat("Atlas dimensions:", dim(atlas_data), "\n")
+cat("Label data dimensions:", dim(label_data), "\n")
+cat("Atlas region range:", range(atlas_data, na.rm = TRUE), "\n")
+
+# creating a data frame with all the data
+logBF_data <- data.frame(
+  x = rep(1:dim(atlas_data)[1], each = dim(atlas_data)[2] * dim(atlas_data)[3]),
+  y = rep(rep(1:dim(atlas_data)[2], each = dim(atlas_data)[3]), times = dim(atlas_data)[1]),
+  z = rep(1:dim(atlas_data)[3], times = dim(atlas_data)[1] * dim(atlas_data)[2]),
+  logBF = as.vector(logBF_map),   
+  region = as.vector(atlas_data)  # regions from AAL atlas
+)
+
+# Merging with region labels
+logBF_data <- logBF_data %>%
+  left_join(label_data, by = c("region" = "index"))
+
+# Summarizing the logBF data by region
+region_summary <- logBF_data %>%
+  group_by(region, label) %>%
+  summarise(
+    max_logBF = max(logBF, na.rm = TRUE),
+    num_voxels = n(),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(max_logBF))
+
+# Viewing the summary table
+print(region_summary)
+
+# Thresholding LogBF values to focus on significant regions
+threshold_value <- 0.5
+significant_regions <- region_summary %>%
+  filter(max_logBF >= threshold_value)
+
+# Reordering the data by max_logBF, and by n_voxels
+sorted_results <- significant_regions %>%
+  arrange(desc(max_logBF), desc(num_voxels))
+
+sorted_results
+
+# Removing rows where region_name is NA
+filtered_results <- sorted_results %>%
+  filter(!is.na(label))
+
+filtered_results
