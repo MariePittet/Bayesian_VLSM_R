@@ -290,3 +290,64 @@ combined_plot <- (plot_x | plot_y | plot_z) +
     legend.text = element_text(size = 10))
 
 combined_plot 
+
+# Comparison with atlases -------------------------------------------------
+
+# Load logBF map
+logBF_map <-  readNIfTI("logBF_map.nii.gz", reorient = FALSE) # already done but if you want to run this part separately, load here
+
+# Loading the Talairach atlas
+label_data <- readNIfTI("Talairach-labels-1mm.nii.gz", reorient = FALSE) # took that one because it has cortical and subcortical regions all merged in one
+
+# Getting the dimensions of the label file
+cat("Label file dimensions:", dim(label_data), "\n")
+cat("Label range (region indices):", range(label_data, na.rm = TRUE), "\n")
+
+# Extracting data from logBF map
+logBF_data <- data.frame(
+  x = rep(1:dim(label_data)[1], each = dim(label_data)[2] * dim(label_data)[3]),
+  y = rep(rep(1:dim(label_data)[2], each = dim(label_data)[3]), times = dim(label_data)[1]),
+  z = rep(1:dim(label_data)[3], times = dim(label_data)[1] * dim(label_data)[2]),
+  logBF = as.vector(logBF_map),  
+  region = as.vector(label_data)) # Talairach regions
+
+# Summarizing logBF by Talairach region
+region_summary <- logBF_data %>%
+  group_by(region) %>%
+  summarise(
+    mean_logBF = mean(logBF, na.rm = TRUE),
+    max_logBF = max(logBF, na.rm = TRUE),
+    num_voxels = n(),
+    .groups = "drop") %>%
+  arrange(desc(max_logBF))
+
+# Thresholding LogBF values to only get regions with a higher probability of H1 being true compared to H0
+threshold_value <- 0.5
+significant_regions <- region_summary %>%
+  filter(max_logBF >= threshold_value)
+
+# Reading the .txt file with labels
+labels_data <- read.table("Talairach-labels.txt", header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+
+# Assigning proper column names
+colnames(labels_data) <- c("Region_ID", "Label")
+
+# Listing of significant region indices
+significant_regions1 <- significant_regions$region 
+
+# Merging significant regions with labels
+significant_labels <- labels_data[labels_data$Region_ID %in% significant_regions, ]
+
+# Merging labels into the analysis results
+analysis_results_with_labels <- merge(significant_regions, labels_data, by.x = "region", by.y = "Region_ID")
+
+# Analysis results with labels
+analysis_results_with_labels
+
+# Reordering the data by max_logBF, and by n_voxels. That is arbitrary; you can modify it as you please to show your results
+sorted_results <- analysis_results_with_labels %>%
+  arrange(desc(max_logBF), desc(num_voxels))
+
+sorted_results
+
+
