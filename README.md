@@ -34,4 +34,4 @@ Sperber, C., et al. (2023). Bayesian lesion-deficit inference with Bayes factor 
 Talairach, J., & Tournoux, P. (1988). Co-Planar Stereotaxic Atlas of the Human Brain. Thieme Medical Publishers.\
 Tzourio-Mazoyer, N., et al. (2002). Automated anatomical labeling of activations in SPM using a macroscopic anatomical parcellation of the MNI MRI single-subject brain. Neuroimage.\
 Kass, R. E., & Raftery, A. E. (1995). Bayes Factors. Journal of the American Statistical Association.\
-Sperber, C., Karnath, O. (2015). Topography of acute stroke in a sample of 439 right brain damaged patients. NeuroImage Clin. _
+Sperber, C., Karnath, O. (2015). Topography of acute stroke in a sample of 439 right brain damaged patients. NeuroImage Clin._
