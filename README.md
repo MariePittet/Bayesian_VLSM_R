@@ -25,11 +25,11 @@ A first analysis using the frequentist approach (t-tests) is performed for compa
 - logBF = [2, inf]         Decisive evidence for alternative hypothesis
 
  ## Quick note on bVLSM or VLSM on stroke patients
-I recommend caution when conducting VLSM on samples composed exclusively of stroke patients. This caution stems from a fundamental anatomical issue tied to stroke pathology: most vascular occlusions occur near the Circle of Willis — the central arterial hub supplying the brain from its ventral surface (Sperber & Karnath, 2015).
-Because of this, lesions often originate in proximal arterial territories and extend to more distal regions. When the function of interest lies in dorsal regions (e.g., parietal cortex), VLSM may falsely implicate upstream areas — not because they are causally related to the behavior, but because they are simply part of the same vascular tree.
+I feel that VLSM conducted on samples composed exclusively of stroke patients is a tricky subject, even with the bayesian approach. This caution stems from a fundamental anatomical issue tied to stroke pathology: most vascular occlusions occur near the Circle of Willis, aka the central arterial hub supplying the brain with blood from its ventral surface (Sperber & Karnath, 2015).
+Because of this, lesions often originate in proximal arterial territories and extend to more distal regions. When the function of interest lies in dorsal regions (e.g., parietal cortex), VLSM may falsely implicate upstream areas, not because they are causally related to the behavior, but because they are simply part of the same vascular tree.
 This goes beyond the usual concerns about lesion coverage or lesion dependence: even with sufficient coverage, VLSM can produce misleading statistical associations along the entire arterial path leading to the functionally relevant region.
-For example, a sensorimotor variable that depends on parietal cortex function may result in significant VLSM hits in more ventral regions like Heschl's gyrus — simply because those regions are commonly affected in MCA strokes and co-occur with damage to the true site.
-Think of these proximal regions as the office manager who gets all the credit while the real work is done upstream — by the parietal cortex. The boss didn’t do the job, but still shows up in the VLSM results.
+For example, a sensorimotor variable that depends on parietal cortex function may result in significant VLSM hits in more ventral regions like Heschl's gyrus, simply because those regions are commonly affected in MCA strokes and almost always co-occur with damage to the true site.
+Think of these proximal regions as the office manager who gets all the credit while the real work is done upstream (by the parietal cortex in my toy example). The boss didn’t do the job, but still shows up in the VLSM results.
 
 
 
