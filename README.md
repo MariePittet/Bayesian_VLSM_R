@@ -1,7 +1,7 @@
 # Bayesian_VLSM_R
 Contributor: Marie Pittet, marie.pittet93@gmail.com, Jan 2025
 
-Full R-based Bayesian Voxel-Based Lesion-Symptom Mapping with publication ready plots of selected slices. This is particularly suitable for the exploration of the effects of lesions on behavioral outcomes (symptoms) in small sample sizes. 
+Full R-based Bayesian Voxel-Based Lesion-Symptom Mapping with publication ready plots of selected slices. This is particularly suitable for the exploration of the effects of lesions on behavioral outcomes (symptoms) in small samples. 
 A first analysis using the frequentist approach (t-tests) is performed for comparison. The second approach is the bVLSM using bayesian t-tests (with the "BayesFactor" package), with Cauchy priors. BVLSM -also called Bayesian Lesion-Deficit Inference (BLDI), does not really benefit from lesion-volume correction (Sperber et al., 2023), hence it is not applied here. A visualization in the axial plane is provided, as well as a visualization of selected slices in the sagittal, coronal, and axial planes. Additionnally, the significant voxels are attributed to Talairach atlas' regions or Automated anatomical labeling (AAL) regions in a table for easy interpretation. The AAL atlas had to be resampled to fit the MNI1mm template used for normalization.
 
 ## Input: 
