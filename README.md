@@ -16,7 +16,7 @@ A first analysis using the frequentist approach (t-tests) is performed for compa
 
  
  
- ## Log(BF) values are usually interpreted as follows (Krass & Raftery, 1995):
+ ## Log(BF) values are usually interpreted as follows (Kass & Raftery, 1995):
 - logBF = 0                no evidence for either the null or the alternative hypothesis
 - logBF = [0, 0.5[         weak evidence for alternative hypothesis
 - logBF = [0.5, 1[         Substantial evidence for alternative hypothesis
